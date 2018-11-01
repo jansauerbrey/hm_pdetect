@@ -34,11 +34,11 @@ VERSION_DATE="Aug 30 2017"
 # on the command-line himself
 USERVARS=$(set -o posix; set | grep "HM_.*=" 2>/dev/null)
 
-# IP addresses/hostnames of FRITZ! devices
-HM_FRITZ_IP=${HM_FRITZ_IP:-"fritz.box fritz.repeater"}
+# IP addresses/hostnames of LANCOM! devices
+HM_LANCOM_IP=${HM_LANCOM_IP:-"lancom"}
 
 # IP address/hostname of CCU2
-HM_CCU_IP=${HM_CCU_IP:-"homematic-ccu2.fritz.box"}
+HM_CCU_IP=${HM_CCU_IP:-"ccu3-webui"}
 
 # Name of the CCU variable prefix used
 HM_CCU_PRESENCE_VAR=${HM_CCU_PRESENCE_VAR:-"Anwesenheit"}
@@ -62,7 +62,7 @@ HM_CCU_PRESENCE_AWAY=${HM_CCU_PRESENCE_AWAY:-"abwesend"}
 #
 # guest - apply known ignore list to devices in a dedicated
 #         guest WiFi/LAN only (requireѕ enabled guest WiFi/LAN in
-#         FRITZ! device)
+#         LANCOM! device)
 # all   - apply known ignore list to all devices
 # off   - disabled guest recognition
 HM_KNOWN_LIST_MODE=${HM_KNOWN_LIST_MODE:-"guest"}
@@ -353,224 +353,94 @@ function createVariable()
   fi
 }
 
-# function that gets a new sessionID for connecting to a FRITZ! device
-function getSessionID()
-{
-  local uri=$1
-
-  # retrieve login challenge
-  local challenge=$(wget -q -O - --no-check-certificate "${uri}/login_sid.lua")
-  if [[ ${challenge} =~ \<Challenge\>(.*)\</Challenge\> ]]; then
-    challenge="${BASH_REMATCH[1]}"
-  else
-    challenge=""
-  fi
-
-  # check if we retrieved a valid challenge
-  if [[ -z ${challenge} ]]; then
-    echo
-    echo "WARNING: could not connect to ${uri}. Please check hostname/ip or URI."
-    return ${RETURN_FAILURE}
-  fi
-
-  # process login and hash it with our password
-  local cpstr="${challenge}-${secret}"
-  local md5=$(echo -n ${cpstr} | iconv -f ISO8859-1 -t UTF-16LE | md5sum -b | cut -d' ' -f1)
-  local response="${challenge}-${md5}"
-  local url_params="username=${user}&response=${response}"
-  
-  # send login request and retrieve SID
-  local sid=$(wget -q -O - --no-check-certificate "${uri}/login_sid.lua?${url_params}")
-  if [[ ${sid} =~ \<SID\>(.*)\</SID\> ]]; then
-    sid="${BASH_REMATCH[1]}"
-  else
-    sid=""
-  fi
- 
-  # check if we got a valid SID
-  if [[ -z ${sid} || ${sid} == "0000000000000000" ]]; then
-    echo
-    echo "ERROR: username or password incorrect."
-    return ${RETURN_FAILURE}
-  fi
-
-  echo ${sid}
-  return ${RETURN_SUCCESS}
-}
-
-# function to retrieve the current device list registered
-# with a FRITZ! devices. This is performed by using query.lua
-# and will return the name, ip, mac, guest status and active status
-# of devices registerd at the WiFi/LAN of a FRITZ! device
-function getDeviceList()
-{
-  local uri=$1
-  local sid=$2
-  local devices=
-
-  # NOTE: FRITZ!OS Version can be queried via following URL
-  #
-  # http://fritz.box/query.lua?sid=${sid}&fw=logic:status/nspver
-
-  # retrieve the network device list from the fritzbox using a
-  # specific call to query.lua so that we get our information without
-  # having to parse HTML portions.
-  devices=$(wget -q -O - --max-redirect=0 --no-check-certificate "${uri}/query.lua?sid=${sid}&network=landevice:settings/landevice/list(name,ip,mac,guest,wlan,speed,active)")
-  if [[ $? -ne 0 || -z ${devices} ]]; then
-    return ${RETURN_FAILURE}
-  fi
-
-  echo "${devices}"
-  return ${RETURN_SUCCESS}
-}
-
-# function that logs into a FRITZ! device and stores the MAC and IP address of all devices
+# function that logs into a LANCOM! device and stores the MAC and IP address of all devices
 # in an associative array which have to bre created before calling this function
-function retrieveFritzBoxDeviceList()
+function retrieveLancomDeviceList()
 {
   local ip=$1
   local user=$2
   local secret=$3
-  local uri=${ip}
 
-  # check if "ip" starts with a "http(s)://" URL scheme
-  # identifier or if we have to add it ourself
-  if [[ ! ${ip} =~ ^http(s)?:\/\/ ]]; then
-    uri="http://${ip}"
-  fi
 
-  # retrieve the network device list from the fritzbox using a
-  # specific call to query.lua so that we get our information without
-  # having to parse HTML portions. we first try this with our
-  local devices=
+
+
+  # retrieve the network device list from the lancombox using snmp call
+  local devices_mac=
+  local devices_ip=
   local res=1
-  local sid=${sidStorage[${ip}]}
-  if [[ -n ${sid} ]]; then
-    devices=$(getDeviceList "${uri}" ${sid})
-    res=$?
-  fi
-  if [[ ${res} -ne 0 || -z ${devices} ]]; then
-    # the first iteration with the sid of the
-    # last iteration didn't work out so lets
-    # generate a new one
-    sid=$(getSessionID "${uri}")
-    if [[ $? -ne 0 ]]; then
-      echo "${sid}"
-      return ${RETURN_FAILURE}
-    fi
-    devices=$(getDeviceList "${uri}" ${sid})
-    res=$?
-  fi
+
+
+  devices_mac=$(snmpwalk -v3 -l authPriv -u ${user} -a SHA -A ${secret} -x AES -X ${secret} ${ip} 1.3.6.1.4.1.2356.11.1.3.32.1.4)
+  devices_ip=$(snmpwalk -v3 -l authPriv -u ${user} -a SHA -A ${secret} -x AES -X ${secret} ${ip} 1.3.6.1.4.1.2356.11.1.3.32.1.27)
+  devices_status=$(snmpwalk -v3 -l authPriv -u ${user} -a SHA -A ${secret} -x AES -X ${secret} ${ip} 1.3.6.1.4.1.2356.11.1.3.32.1.10)
+  devices_network=$(snmpwalk -v3 -l authPriv -u ${user} -a SHA -A ${secret} -x AES -X ${secret} ${ip} 1.3.6.1.4.1.2356.11.1.3.32.1.25)
+  res=$?
 
   # perform a last check
-  if [[ ${res} -ne 0 || -z ${devices} ]]; then
+  if [[ ${res} -ne 0 || -z ${devices_mac} || -z ${devices_ip} || -z ${devices_status} || -z ${devices_network} ]]; then
     echo
     echo "ERROR: Couldn't retrieve device list."
     return ${RETURN_FAILURE}
   fi
 
-  # now we prepare the 'devices' variable to have all
-  # parameters on separate lines
-  # (some FRITZ!OS versions put everything on one line)
-  devices="${devices//[\{/$'\n'[\{$'\n'}"
-  devices="${devices//\},{/$'\n'\},{$'\n'}"
-  devices="${devices//\}]/$'\n'\}]}"
-  devices="${devices//\",/\",$'\n'}"
-  devices=$(echo "${devices}" | grep '[^[:blank:]]')
-
-  # DEBUG: uncomment for debugging purposes
-  #echo
-  #echo "${devices}"
-
-  # the SID succeeded so lets make this SID the
-  # new currently valid SID of this ip
-  sidStorage[${ip}]=${sid}
+  devices_mac=${devices_mac//[[:space:]]SNMP/$'\n'SNMP}
+  devices_ip=${devices_ip//[[:space:]]SNMP/$'\n'SNMP}
+  devices_status=${devices_status//[[:space:]]SNMP/$'\n'SNMP}
+  devices_network=${devices_network//[[:space:]]SNMP/$'\n'SNMP}
 
   # prepare the regular expressions
-  local re_name="\"name\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_ip="\"ip\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_mac="\"mac\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_guest="\"guest\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_wlan="\"wlan\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_speed="\"speed\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
-  local re_active="\"active\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
+  local re_mac=".*Hex-STRING:[[:space:]](.*)"
+  local re_ip=".*IpAddress:[[:space:]](.*)"
+  local re_status=".*INTEGER:[[:space:]](.*)"
+  local re_network=".*INTEGER:[[:space:]](.*)"
 
-  local maclist_normal=()
-  local iplist_normal=()
-  local maclist_guest=()
-  local iplist_guest=()
-  local name=""
-  local ipaddr=""
-  local mac=""
-  local guest=0
-  local wlan=0
-  local speed=0
-  local active=0
+  local maclist=()
+  local iplist=()
+  local statuslist=()
+  local networklist=()
 
-  # parse the query.lua output line by line
+
   while read -r line; do
-
-    # we collect data until we find a '}' character in one line
-    # which should signal that we have parsed all parameters of a device
-    if [[ $line =~ .*}.* ]]; then
-      if [[ -n $ipaddr ]]; then
-        # DEBUG: output name+speed+active for debugging purposes
-        #echo -n "${name}: ${active} @ ${speed} - wlan: ${wlan} - "
-
-        # only add 'active' devices
-        if [[ ${active} -eq 1 ]]; then
-          if [[ ${guest} -eq 1 ]]; then
-            maclist_guest+=(${mac^^}) # add uppercased mac address
-            iplist_guest+=(${ipaddr})
-
-            # DEBUG: debug statement
-            #echo "active(GUEST)"
-          else
-            maclist_normal+=(${mac^^}) # add uppercased mac address
-            iplist_normal+=(${ipaddr})
-
-            # DEBUG: debug statement
-            #echo "active(NORMAL)"
-          fi
-        #else
-          # DEBUG: debug statement
-          #echo "NOT ACTIVE"
-        fi
-
-        # reset variables
-        name=""
-        ipaddr=""
-        mac=""
-        guest=0
-        wlan=0
-        speed=0
-        active=0
-      fi
-    elif [[ $line =~ $re_name ]]; then
-      name="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_ip ]]; then
-      ipaddr="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_mac ]]; then
-      mac="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_guest ]]; then
-      guest="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_wlan ]]; then
-      wlan="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_speed ]]; then
-      speed="${BASH_REMATCH[1]}"
-    elif [[ $line =~ $re_active ]]; then
-      active="${BASH_REMATCH[1]}"
+    if [[ $line =~ $re_mac ]]; then
+      mac="${BASH_REMATCH[1]//[[:space:]]/:}"
     fi
-  done <<< "${devices}"
+    maclist+=(${mac^^})
+    mac=""
+  done <<< "${devices_mac}"
 
-  # modify the global associative array for the normal-WiFi/LAN
-  for (( i = 0; i < ${#maclist_normal[@]} ; i++ )); do
-    normalDeviceList[${maclist_normal[$i]}]=${iplist_normal[$i]}
-  done
+  while read -r line; do
+    if [[ $line =~ $re_ip ]]; then
+      ipaddr="${BASH_REMATCH[1]}"
+    fi
+    iplist+=(${ipaddr})
+    ipaddr=""
+  done <<< "${devices_ip}"
 
-  # modify the global associative array for the guest-WiFi/LAN
-  for (( i = 0; i < ${#maclist_guest[@]} ; i++ )); do
-    guestDeviceList[${maclist_guest[$i]}]=${iplist_guest[$i]}
+  while read -r line; do
+    if [[ $line =~ $re_status ]]; then
+      status="${BASH_REMATCH[1]}"
+    fi
+    statuslist+=(${status})
+    status=""
+  done <<< "${devices_status}"
+
+  while read -r line; do
+    if [[ $line =~ $re_network ]]; then
+      network="${BASH_REMATCH[1]}"
+    fi
+    networklist+=(${network})
+    network=""
+  done <<< "${devices_network}"
+
+
+  for (( i = 0; i < ${#maclist[@]} ; i++ )); do
+    if [[ ${statuslist[$i]} -eq 3 ]]; then
+      if [[ ${networklist[$i]} -eq 0 ]]; then
+        normalDeviceList[${maclist[$i]}]=${iplist[$i]}
+      elif [[ ${networklist[$i]} -eq 1 ]]; then
+        guestDeviceList[${maclist[$i]}]=${iplist[$i]}
+      fi
+    fi
   done
 
   return ${RETURN_SUCCESS}
@@ -667,11 +537,11 @@ function run_pdetect()
 
   # lets retrieve all mac<>ip addresses of currently
   # active devices in our network
-  echo -n "Querying FRITZ! devices:"
+  echo -n "Querying LANCOM devices:"
   i=0
-  for ip in ${HM_FRITZ_IP[@]}; do
+  for ip in ${HM_LANCOM_IP[@]}; do
     echo -n " ${ip}"
-    retrieveFritzBoxDeviceList ${ip} "${HM_FRITZ_USER}" "${HM_FRITZ_SECRET}"
+    retrieveLancomDeviceList ${ip} "${HM_LANCOM_USER}" "${HM_LANCOM_SECRET}"
     if [[ $? -eq 0 ]]; then
       ((i = i + 1))
     fi
@@ -679,7 +549,7 @@ function run_pdetect()
   
   # check that we were able to connect to at least one device
   if [[ ${i} -eq 0 ]]; then
-    echo "ERROR: couldn't connect to any specified FRITZ! device."
+    echo "ERROR: couldn't connect to any specified LANCOM device."
     return ${RETURN_FAILURE}
   fi
 
@@ -873,7 +743,7 @@ function run_pdetect()
 ################################################
 # main processing starts here
 #
-echo "hm_pdetect ${VERSION} - a FRITZ!-based HomeMatic presence detection script"
+echo "hm_pdetect ${VERSION} - a LANCOM!-based HomeMatic presence detection script"
 echo "(${VERSION_DATE}) Copyright (C) 2015-2017 Jens Maus <mail@jens-maus.de>"
 echo
 
