@@ -1,11 +1,11 @@
 # IP address/hostname or https:// URI and login credentials of
-# FRITZ! devices (e.g. FRITZ!Box or FRITZ!repeater)
-HM_FRITZ_IP="fritz.box fritz.repeater"
-HM_FRITZ_USER=
-HM_FRITZ_SECRET=
+# LANCOM devices
+HM_LANCOM_IP="lancom.intern"
+HM_LANCOM_USER=
+HM_LANCOM_SECRET=
 
 # IP address/hostname of CCU device (CCU1, CCU2, RaspberryMatic)
-HM_CCU_IP="homematic-ccu2.fritz.box"
+HM_CCU_IP="ccu3-webui"
 
 # used names within variables
 HM_CCU_PRESENCE_USER="Nutzer"
@@ -46,7 +46,7 @@ HM_USER_LIST=([John]=C9:85:51:8B:06:10 [Jane]='06:F7:E4:42:F4:4D 00:27:00:4D:1E:
 #
 # guest - apply known ignore list to devices in a dedicated
 #         guest WiFi/LAN only (requireѕ enabled guest WiFi/LAN in
-#         FRITZ! device)
+#         LANCOM device)
 # all   - apply known ignore list to all devices
 # off   - disabled guest recognition
 HM_KNOWN_LIST_MODE="guest"

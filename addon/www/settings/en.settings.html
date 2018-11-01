@@ -41,7 +41,7 @@
   </div><!-- class="container" -->
 </div><!-- class="navbar ..." -->
 <div class="container center1 col-md-8" id="content"> 
-<legend>FRITZ!-based Presence Detection - Configuration</legend>
+<legend>LANCOM-based Presence Detection - Configuration</legend>
 <div class="well well-s">
 
 <form class='form-horizontal' name='f_edit' id='f_edit'  action="en.settings.cgi" method="get">
@@ -49,21 +49,21 @@
        
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_FRITZ_IP" id="HM_FRITZ_IP-Label">FRITZ! Hostnames/IPs:</label>
+  <label class="col-md-3 control-label" for="HM_LANCOM_IP" id="HM_LANCOM_IP-Label">LANCOM Hostnames/IPs:</label>
   <div class="col-md-4">
-  <input id="HM_FRITZ_IP" name="HM_FRITZ_IP" type="text" placeholder="e.g. 'fritz.box fritz.repeater'" class="form-control input-md" value="<%HM_FRITZ_IP%>">
-  <span class="help-block">Default: 'fritz.box fritz.repeater'</span>  
+  <input id="HM_LANCOM_IP" name="HM_LANCOM_IP" type="text" placeholder="e.g. 'lancom.intern'" class="form-control input-md" value="<%HM_LANCOM_IP%>">
+  <span class="help-block">Default: 'lancom.intern'</span>  
   </div>
 </div>
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_FRITZ_USER" id="HM_FRITZ_USER-Label">FRITZ! Login Credentials:</label>
+  <label class="col-md-3 control-label" for="HM_LANCOM_USER" id="HM_LANCOM_USER-Label">LANCOM Login Credentials:</label>
   <div class="col-md-4">
-  <input id="HM_FRITZ_USER" name="HM_FRITZ_USER" type="text" placeholder="Username" class="form-control input-md" value="<%HM_FRITZ_USER%>">
+  <input id="HM_LANCOM_USER" name="HM_LANCOM_USER" type="text" placeholder="Username" class="form-control input-md" value="<%HM_LANCOM_USER%>">
   <span class="help-block">Default: empty (no username required)</span>  
   </div>
   <div class="col-md-3">
-  <input id="HM_FRITZ_SECRET" name="HM_FRITZ_SECRET" type="password" placeholder="Password" class="form-control input-md" value="<%HM_FRITZ_SECRET%>">
+  <input id="HM_LANCOM_SECRET" name="HM_LANCOM_SECRET" type="password" placeholder="Password" class="form-control input-md" value="<%HM_LANCOM_SECRET%>">
   <span class="help-block">Default: empty (no password required)</span>
   </div>
 </div>
@@ -211,9 +211,9 @@ $('#HM_INTERVAL_TIME').slider({
 });
 
 function check () {
-  $('#HM_FRITZ_IP').val("");
-  $('#HM_FRITZ_USER').val("");
-  $('#HM_FRITZ_SECRET').val("");
+  $('#HM_LANCOM_IP').val("");
+  $('#HM_LANCOM_USER').val("");
+  $('#HM_LANCOM_SECRET').val("");
   $('#HM_USER_LIST').val("");
   $('#HM_KNOWN_LIST').val("");
   $('#HM_INTERVAL_TIME').slider('setValue', 15);

@@ -27,15 +27,6 @@ fi
 # copy addon (common stuff)
 cp -af common/* ${ADDON_DIR}/
 
-# copy addon (CCU dependent stuff)
-if [ "$1" = "" ]; then
-  cp -af ccu1/* ${ADDON_DIR}/
-elif [ "$1" = "CCU2" ]; then
-  cp -af ccu2/* ${ADDON_DIR}/
-elif [ "$1" == "HM-RASPBERRYMATIC" ]; then
-  cp -af ccurm/* ${ADDON_DIR}/
-fi
-
 # copy startup script
 cp -af rc.d/* ${RCD_DIR}
 

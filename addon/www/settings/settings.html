@@ -30,7 +30,7 @@
       </div>
    <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav ">
-        <li><a href="../index.html">Über</a></li>
+        <li><a href="../index.html">ï¿½ber</a></li>
         <li><a href="logoutput.cgi">Logfile</a></li>
         <li class="active"><a href="settings.cgi">Konfiguration</a></li>
       </ul>
@@ -41,7 +41,7 @@
   </div><!-- class="container" -->
 </div><!-- class="navbar ..." -->
 <div class="container center1 col-md-8" id="content"> 
-<legend>FRITZ!-basierte Anwesenheitserkennung - Konfiguration</legend>
+<legend>LANCOM-basierte Anwesenheitserkennung - Konfiguration</legend>
 <div class="well well-s">
 
 <form class='form-horizontal' name='f_edit' id='f_edit'  action="settings.cgi" method="get">
@@ -49,50 +49,50 @@
        
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_FRITZ_IP" id="HM_FRITZ_IP-Label">FRITZ! Hostnamen/IPs:</label>
+  <label class="col-md-3 control-label" for="HM_LANCOM_IP" id="HM_LANCOM_IP-Label">LANCOM Hostnamen/IPs:</label>
   <div class="col-md-4">
-  <input id="HM_FRITZ_IP" name="HM_FRITZ_IP" type="text" placeholder="z.B. 'fritz.box fritz.repeater'" class="form-control input-md" value="<%HM_FRITZ_IP%>">
-  <span class="help-block">Standardwert: 'fritz.box fritz.repeater'</span>  
+  <input id="HM_LANCOM_IP" name="HM_LANCOM_IP" type="text" placeholder="z.B. 'lancom.intern'" class="form-control input-md" value="<%HM_LANCOM_IP%>">
+  <span class="help-block">Standardwert: 'lancom.intern'</span>  
   </div>
 </div>
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_FRITZ_USER" id="HM_FRITZ_USER-Label">FRITZ! Zugangsdaten:</label>
+  <label class="col-md-3 control-label" for="HM_LANCOM_USER" id="HM_LANCOM_USER-Label">LANCOM Zugangsdaten:</label>
   <div class="col-md-4">
-  <input id="HM_FRITZ_USER" name="HM_FRITZ_USER" type="text" placeholder="Nutzername" class="form-control input-md" value="<%HM_FRITZ_USER%>">
+  <input id="HM_LANCOM_USER" name="HM_LANCOM_USER" type="text" placeholder="Nutzername" class="form-control input-md" value="<%HM_LANCOM_USER%>">
   <span class="help-block">Standardwert: leer (kein Nutzername notwendig)</span>  
   </div>
   <div class="col-md-3">
-  <input id="HM_FRITZ_SECRET" name="HM_FRITZ_SECRET" type="password" placeholder="Passwort" class="form-control input-md" value="<%HM_FRITZ_SECRET%>">
+  <input id="HM_LANCOM_SECRET" name="HM_LANCOM_SECRET" type="password" placeholder="Passwort" class="form-control input-md" value="<%HM_LANCOM_SECRET%>">
   <span class="help-block">Standardwert: leer (kein Passwort notwendig)</span>
   </div>
 </div>
 <!-- Text area-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_USER_LIST" id="HM_USER_LIST-Label">Eineindeutige Nutzergeräte<br>(MAC/IP-Liste):</label>
+  <label class="col-md-3 control-label" for="HM_USER_LIST" id="HM_USER_LIST-Label">Eineindeutige Nutzergerï¿½te<br>(MAC/IP-Liste):</label>
   <div class="col-md-8">
     <textarea id="HM_USER_LIST" name="HM_USER_LIST" type="text" rows="4" placeholder="z.B. [John]=AA:BB:CC:DD:EE:FF [Jane]='192.168.178.10 192.168.178.20'" class="form-control input-md"><%HM_USER_LIST%></textarea>
-    <span class="help-block">Standardwert: leer (keine Nutzergeräte konfiguriert)</span>  
+    <span class="help-block">Standardwert: leer (keine Nutzergerï¿½te konfiguriert)</span>  
   </div>
 </div>
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_KNOWN_LIST" id="HM_KNOWN_LIST-Label">Bekannte WLAN/LAN-Geräte<br>(MAC/IP-Liste):</label>  
+  <label class="col-md-3 control-label" for="HM_KNOWN_LIST" id="HM_KNOWN_LIST-Label">Bekannte WLAN/LAN-Gerï¿½te<br>(MAC/IP-Liste):</label>  
   <div class="col-md-8">
     <textarea id="HM_KNOWN_LIST" name="HM_KNOWN_LIST" type="text" rows="4" placeholder="z.B. 'AA:BB:CC:DD:EE:FF 192.168.178.30'" class="form-control input-md"><%HM_KNOWN_LIST%></textarea>
     <label class="radio-inline"><input id="HM_KNOWN_LIST_MODE1" name="HM_KNOWN_LIST_MODE" type="radio" value="guest" <%HM_KNOWN_LIST_MODE1%>>auf Gast-WLAN anwenden</label>
     <label class="radio-inline"><input id="HM_KNOWN_LIST_MODE2" name="HM_KNOWN_LIST_MODE" type="radio" value="all" <%HM_KNOWN_LIST_MODE2%>>auf gesamtes WLAN/LAN anwenden</label>
     <label class="radio-inline"><input id="HM_KNOWN_LIST_MODE3" name="HM_KNOWN_LIST_MODE" type="radio" value="off" <%HM_KNOWN_LIST_MODE3%>>Gast-Erkennung deaktiviert</label>
-    <span class="help-block">Standardwert: leer (alle unbekannten Geräte im gewählten WLAN/LAN werden als Gastgeräte identifiziert)</span>
+    <span class="help-block">Standardwert: leer (alle unbekannten Gerï¿½te im gewï¿½hlten WLAN/LAN werden als Gastgerï¿½te identifiziert)</span>
   </div>
 </div>
 <br>
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-3 control-label" for="HM_INTERVAL_TIME" id="HM_INTERVAL_TIME-Label">Automatische Ausführung:</label>  
+  <label class="col-md-3 control-label" for="HM_INTERVAL_TIME" id="HM_INTERVAL_TIME-Label">Automatische Ausfï¿½hrung:</label>  
   <div class="col-md-8">
     <input id="HM_INTERVAL_TIME" name="HM_INTERVAL_TIME" type="text" style="width:100%" data-slider-min="0" data-slider-max="1800" data-slider-step="5" data-slider-value="<%HM_INTERVAL_TIME%>" data-slider-enabled="true"/>
-    <span class="help-block">Standardwert: 15s (Ausführung alle 15 Sekunden)</span>
+    <span class="help-block">Standardwert: 15s (Ausfï¿½hrung alle 15 Sekunden)</span>
   </div>
 </div>
 <!-- Separator-->
@@ -211,9 +211,9 @@ $('#HM_INTERVAL_TIME').slider({
 });
 
 function check () {
-  $('#HM_FRITZ_IP').val("");
-  $('#HM_FRITZ_USER').val("");
-  $('#HM_FRITZ_SECRET').val("");
+  $('#HM_LANCOM_IP').val("");
+  $('#HM_LANCOM_USER').val("");
+  $('#HM_LANCOM_SECRET').val("");
   $('#HM_USER_LIST').val("");
   $('#HM_KNOWN_LIST').val("");
   $('#HM_INTERVAL_TIME').slider('setValue', 15);

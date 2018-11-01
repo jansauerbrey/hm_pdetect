@@ -4,9 +4,9 @@ source [file join [file dirname [info script]] inc/settings.tcl]
 parseQuery
 
 if { $args(command) == "defaults" } {
-  set args(HM_FRITZ_IP) ""
-  set args(HM_FRITZ_USER) ""
-  set args(HM_FRITZ_SECRET) ""
+  set args(HM_LANCOM_IP) ""
+  set args(HM_LANCOM_USER) ""
+  set args(HM_LANCOM_SECRET) ""
   set args(HM_CCU_PRESENCE_VAR) ""
   set args(HM_CCU_PRESENCE_LIST) ""
   set args(HM_CCU_PRESENCE_LIST_ENABLED) ""
@@ -32,9 +32,9 @@ if { $args(command) == "save" } {
 	saveConfigFile
 } 
 
-set HM_FRITZ_IP ""
-set HM_FRITZ_USER ""
-set HM_FRITZ_SECRET ""
+set HM_LANCOM_IP ""
+set HM_LANCOM_USER ""
+set HM_LANCOM_SECRET ""
 set HM_CCU_PRESENCE_VAR ""
 set HM_CCU_PRESENCE_LIST ""
 set HM_CCU_PRESENCE_LIST_ENABLED ""
